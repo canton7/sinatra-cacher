@@ -1,10 +1,10 @@
 require 'rake'
 require 'rspec/core/rake_task'
 
+spec = eval(File.read(Dir["*.gemspec"].first))
 
 desc "Validate the gemspec"
 task :gemspec do
-  spec = eval(File.read(Dir["*.gemspec"].first))
   spec.validate
 end
 
@@ -20,8 +20,8 @@ task :install => :build do
 end
 
 desc "Run specs"
-RSpec::Core::RakeTask.new(:test) do |spec|
-	spec.rspec_opts = ['--color'] unless RUBY_PLATFORM =~ /mswin|mingw/
+RSpec::Core::RakeTask.new(:test) do |rspec|
+	rspec.rspec_opts = ['--color'] unless RUBY_PLATFORM =~ /mswin|mingw/
 end
 
 desc "Bump version number"

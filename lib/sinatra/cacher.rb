@@ -1,7 +1,10 @@
 require 'fileutils'
+require 'sinatra/base'
 
 module Sinatra
   module Cacher
+    VERSION = '0.1.0'
+
     def self.registered(app)
       app.helpers Helpers
       app.set :cache_enabled, false
