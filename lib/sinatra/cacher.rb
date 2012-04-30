@@ -112,17 +112,19 @@ module Sinatra
         return
       end
 
+      # If we change tag when calling the route once, it remains change for the next time
+      # the route is called.
+      # Therefore don't change tag
       tag = opts.delete(:tag)
       method = generate_method :"C#{verb} #{path} #{opts.hash}", &blk
 
       cache_blk = Proc.new { |context, *args|
-
-        tag, cache_content = cache_route_pre(tag, context)
+        updated_tag, cache_content = cache_route_pre(tag, context)
         next cache_content if cache_content
 
         ret = catch(:cache_stop){ method.bind(context).call(*args) }
 
-        ret = cache_route_post(ret, tag, context)
+        ret = cache_route_post(ret, updated_tag, context)
         ret
       }
 
@@ -145,7 +147,7 @@ module Sinatra
       end
 
       def cache_guess_tag(tag)
-        return tag unless tag == true || tag == :auto
+        return tag unless [true, :auto].include?(tag)
         tag = request.path_info
         tag = File.join(tag, 'index') if tag.empty? || tag.end_with?('/')
         tag

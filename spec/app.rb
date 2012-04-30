@@ -21,4 +21,13 @@ class TestApp < Sinatra::Base
     cache_tag arg unless arg == 'dont_cache'
     SecureRandom.uuid
   end
+
+  cache_get '/route_content_type', :tag => :index do
+    content_type 'text/plain'
+    SecureRandom.uuid
+  end
+
+  cache_get '/route_auto_tag/?', :tag => :auto do
+    SecureRandom.uuid
+  end
 end

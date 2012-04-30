@@ -2,6 +2,14 @@ require 'rack/test'
 require File.join(File.dirname(__FILE__), 'app')
 require 'fileutils'
 
+def spec_dir
+  File.dirname(__FILE__)
+end
+
+def cache_dir
+  File.join(spec_dir, 'tmp/cache')
+end
+
 describe "Sinatra-cacher" do
   include Rack::Test::Methods
 
@@ -10,7 +18,7 @@ describe "Sinatra-cacher" do
   end
 
   after do
-    FileUtils.rm_rf(File.join(File.dirname(__FILE__), 'tmp'))
+    FileUtils.rm_rf(File.join(spec_dir, 'tmp'))
   end
 
   it "should not cache if no tag is given" do
@@ -59,5 +67,33 @@ describe "Sinatra-cacher" do
     last_response.body.should_not == response_3
     get '/route_arg_tag/tag1'
     last_response.body.should == response_1
+  end
+
+  it "should cache the correct content type" do
+    get '/route_content_type'
+    last_response.headers['Content-Type'].should =~ /^text\/plain/
+    response_1 = last_response.body
+    get '/route_content_type'
+    last_response.headers['Content-Type'].should =~ /^text\/plain/
+    last_response.body.should == response_1
+  end
+
+  it "should generate a correctly named cache file for an explicit tag" do
+    get '/route_explicit_tag'
+    File.file?(File.join(cache_dir, 'index.html')).should == true
+    File.delete(File.join(cache_dir, 'index.html'))
+    get '/route_explicit_tag?some_query=yay'
+    File.file?(File.join(cache_dir, 'index.html')).should == true
+  end
+
+  it "should generate a correcly named cache file for an auto tag" do
+    get '/route_auto_tag'
+    File.file?(File.join(cache_dir, 'route_auto_tag.html')).should == true
+    File.delete(File.join(cache_dir, 'route_auto_tag.html'))
+    get '/route_auto_tag/'
+    File.file?(File.join(cache_dir, 'route_auto_tag/index.html')).should == true
+    File.delete(File.join(cache_dir, 'route_auto_tag/index.html'))
+    get '/route_auto_tag/?param=yay'
+    File.file?(File.join(cache_dir, 'route_auto_tag/index.html')).should == true
   end
 end
