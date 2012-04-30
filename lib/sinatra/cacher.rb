@@ -13,7 +13,7 @@ module Sinatra
     end
 
     def cache_enabled?
-      settings.cache_enabled || settings.cache_enabled_in == settings.environment
+      settings.cache_enabled || [*settings.cache_enabled_in].include?(settings.environment)
     end
 
     def cache_get(path, opts={}, &blk)
