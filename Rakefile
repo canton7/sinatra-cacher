@@ -20,7 +20,9 @@ task :install => :build do
 end
 
 desc "Run specs"
-RSpec::Core::RakeTask.new(:test)
+RSpec::Core::RakeTask.new(:test) do |spec|
+	spec.rspec_opts = ['--color'] unless RUBY_PLATFORM =~ /mswin|mingw/
+end
 
 desc "Bump version number"
 task :version, :version do |t,args|
