@@ -96,4 +96,47 @@ describe "Sinatra-cacher" do
     get '/route_auto_tag/?param=yay'
     File.file?(File.join(cache_dir, 'route_auto_tag/index.html')).should == true
   end
+
+  it "should correctly cache blocks (type string)" do
+    get '/route_block_cache/string'
+    response_1 = last_response.body
+    get '/route_block_cache/string'
+    last_response.body.should_not == response_1
+    last_response.body[/CACHED: .*/].should == response_1[/CACHED: .*/]
+  end
+
+  it "should correctly cache blocks (type array)" do
+    get '/route_block_cache/array'
+    last_response.body.should =~ /Type Array$/
+    response_1 = last_response.body
+    get '/route_block_cache/array'
+    last_response.body.should_not == response_1
+    last_response.body[/CACHED: .*/].should == response_1[/CACHED: .*/]
+  end
+
+  it "should correctly cache blocks (type hash)" do
+    get '/route_block_cache/hash'
+    last_response.body.should =~ /Type Hash$/
+    response_1 = last_response.body
+    get '/route_block_cache/hash'
+    last_response.body.should_not == response_1
+    last_response.body[/CACHED: .*/].should == response_1[/CACHED: .*/]
+  end
+
+  it "should complain if no block passed to cache_block" do
+    lambda{ get '/route_invalid_block_cache' }.should raise_error
+  end
+
+  it "should correctly cache fragments" do
+    get '/route_fragment_cache'
+    response_1 = last_response.body
+    get '/route_fragment_cache'
+    response_2 = last_response.body
+    response_1.should_not == response_2
+    response_1[/^\s*CACHED: .*/].should == response_2[/^\s*CACHED: .*/]
+  end
+
+  it "should complain if no block passed to cache_fragment" do
+    lambda{ get '/route_invalid_fragment_cache' }.should raise_error
+  end
 end

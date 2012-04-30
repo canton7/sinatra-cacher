@@ -1,9 +1,11 @@
 require 'sinatra/base'
 require File.join(File.dirname(__FILE__), '../lib/sinatra/cacher')
 require 'securerandom'
+require 'sinatra/outputbuffer'
 
 class TestApp < Sinatra::Base
   register Sinatra::Cacher
+  register Sinatra::OutputBuffer
 
   set :environment, :test
   set :cache_enabled, true
@@ -29,5 +31,34 @@ class TestApp < Sinatra::Base
 
   cache_get '/route_auto_tag/?', :tag => :auto do
     SecureRandom.uuid
+  end
+
+  get '/route_block_cache/:type' do |type|
+    result = cache_fragment(:block_tag) do
+      case type
+      when 'hash'; {:uuid => SecureRandom.uuid}
+      when 'array'; [:uuid, SecureRandom.uuid]
+      when 'string'; "Result of the block: #{SecureRandom.uuid}"
+      end
+    end
+    "CACHED: #{result}: Type #{result.class}\nNOT CAHCED: #{SecureRandom.uuid}"
+  end
+
+  get '/route_invalid_block_cache' do
+    cache_fragment(:block_tag)
+  end
+
+  get '/route_fragment_cache' do
+    erb <<-EOF
+      NOT CACHED: <%= SecureRandom.uuid%>
+      <% cache_fragment(:fragment_tag) do %>
+        <p>Hello World</p>
+        CACHED: <%= SecureRandom.uuid %>
+      <% end %>
+    EOF
+  end
+
+  get '/route_invalid_fragment_cache' do
+    erb "<% cache_fragment(:fragment_tag) %>"
   end
 end
