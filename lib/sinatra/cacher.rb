@@ -25,7 +25,7 @@ module Sinatra
 
     def cache_get_tag(tag)
       return nil if !tag
-      path = File.join(settings.cache_path, tag.to_s) << '.html'
+      path = File.join(settings.root, settings.cache_path, tag.to_s) << '.html'
       return nil unless File.file?(path)
       time, content_type, content = File.open(path) do |f|
         [f.gets.chomp.to_i, f.gets.chomp, f.read]
@@ -48,7 +48,7 @@ module Sinatra
         content = Marshal.dump(content)
         content_type = 'marshal'
       end
-      path = File.join(settings.cache_path, tag) << '.html'
+      path = File.join(settings.root, settings.cache_path, tag) << '.html'
       FileUtils.mkdir_p(File.dirname(path))
       time = Time.now.to_i
       File.open(path, 'w') do |f|
@@ -60,7 +60,7 @@ module Sinatra
     end
 
     def cache_clear(tag)
-      path = File.join(settings.cache_path, tag.to_s)
+      path = File.join(settings.root, settings.cache_path, tag.to_s)
       # If they gave us e.g. 'path/', make it into a glob. Otherwise add a file extension
       path << (path.end_with?('/') ? '*' : '.html')
       FileUtils.rm_r(Dir.glob(path))
