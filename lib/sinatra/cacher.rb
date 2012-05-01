@@ -64,7 +64,7 @@ module Sinatra
       time
     end
 
-    def cache_clear(tag)
+    def cache_clear(tag='/')
       path = File.join(settings.root, settings.cache_path, tag.to_s)
       # If they gave us e.g. 'path/', make it into a glob. Otherwise add a file extension
       path << (path.end_with?('/') ? '*' : '.html')
