@@ -46,7 +46,6 @@ module Sinatra
 
     def cache_put_tag(tag, content, content_type=nil)
       return unless cache_enabled?
-      tag = tag.to_s
       raise "Cache tag should not end with a slash" if tag.end_with?('/')
       raise "Cache tag should not be empty" if tag.empty?
       unless content.is_a?(String)
@@ -76,7 +75,7 @@ module Sinatra
     private
 
     def cache_gen_path(tag)
-       path = File.join(settings.root, settings.cache_path, tag.to_s)
+       path = File.join(settings.root, settings.cache_path, tag)
        path << '.html' if File.extname(path).empty?
        path
     end
@@ -87,8 +86,7 @@ module Sinatra
 
       # If they gave us a tag upfront, (as an arg to cache_get/etc) see whether we can get it
       if tag
-        tag = File.join("pages", tag.to_s)
-        cache_content, cache_time, content_type = cache_get_tag(tag)
+        cache_content, cache_time, content_type = cache_get_tag(File.join('pages', tag))
         if cache_content
           context.etag cache_time if settings.cache_generate_etags
           context.content_type content_type if content_type
@@ -113,7 +111,7 @@ module Sinatra
       tag ||= settings.cache_last_tag
       if tag
         tag = context.cache_guess_tag(tag)
-        time = cache_put_tag(tag, ret, context.response['Content-Type'])
+        time = cache_put_tag(File.join('pages', tag), ret, context.response['Content-Type'])
         context.etag time if settings.cache_generate_etags
       end
       settings.cache_last_tag = nil
@@ -161,7 +159,7 @@ module Sinatra
       end
 
       def cache_guess_tag(tag)
-        return tag unless [true, :auto].include?(tag)
+        return (tag ? tag.to_s : nil) unless [true, :auto].include?(tag)
         tag = request.path_info
         tag = File.join(tag, 'index') if tag.empty? || tag.end_with?('/')
         tag

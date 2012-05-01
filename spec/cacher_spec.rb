@@ -97,6 +97,11 @@ describe "Sinatra-cacher" do
     File.file?(File.join(cache_dir, 'pages/route_auto_tag/index.html')).should == true
   end
 
+  it "should generate a correctly named cache file for a #cache_tag" do
+    get '/route_arg_tag/index'
+    File.file?(File.join(cache_dir, 'pages/index.html')).should == true
+  end
+
   it "should correctly cache blocks (type string)" do
     get '/route_block_cache/string'
     response_1 = last_response.body
