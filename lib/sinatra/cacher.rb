@@ -28,12 +28,6 @@ module Sinatra
     end
     alias_method :get_cache, :cache_get
 
-    def cache_gen_path(tag)
-       path = File.join(settings.root, settings.cache_path, tag.to_s)
-       path << '.html' if File.extname(path).empty?
-       path
-    end
-
     def cache_get_tag(tag)
       return nil if !tag
       path = cache_gen_path(tag)
@@ -80,6 +74,12 @@ module Sinatra
     end
 
     private
+
+    def cache_gen_path(tag)
+       path = File.join(settings.root, settings.cache_path, tag.to_s)
+       path << '.html' if File.extname(path).empty?
+       path
+    end
 
     def cache_route_pre(tag, context)
       # Guess a suitable tag if we're told to
