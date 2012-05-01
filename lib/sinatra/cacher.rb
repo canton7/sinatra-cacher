@@ -31,7 +31,7 @@ module Sinatra
       return nil if !tag
       path = File.join(settings.root, settings.cache_path, tag.to_s) << '.html'
       return nil unless File.file?(path)
-      time, content_type, content = File.open(path) do |f|
+      time, content_type, content = File.open(path, 'rb') do |f|
         [f.gets.chomp.to_i, f.gets.chomp, f.read]
       end
       if content_type == 'marshal'
@@ -55,10 +55,11 @@ module Sinatra
       path = File.join(settings.root, settings.cache_path, tag) << '.html'
       FileUtils.mkdir_p(File.dirname(path))
       time = Time.now.to_i
-      File.open(path, 'w') do |f|
+      # We can get \r\n => \n\n conversion unless we open in binary mode
+      File.open(path, 'wb') do |f|
         f.puts(time)
         f.puts(content_type)
-        f.write(content)
+        f.print(content)
       end
       time
     end
