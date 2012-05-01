@@ -7,7 +7,8 @@ module Sinatra
 
     def self.registered(app)
       app.helpers Helpers
-      app.set :cache_enabled, false
+      # Special value :environment means environment is used
+      app.set :cache_enabled, :environment
       app.set :cache_enabled_in, :production
       app.set :cache_generate_etags, true
       app.set :cache_path, 'tmp/cache'
@@ -16,7 +17,7 @@ module Sinatra
     end
 
     def cache_enabled?
-      settings.cache_enabled || [*settings.cache_enabled_in].include?(settings.environment)
+      settings.cache_enabled == true || (settings.cache_enabled == :environment && [*settings.cache_enabled_in].include?(settings.environment))
     end
 
     def cache_get(path, opts={}, &blk)
