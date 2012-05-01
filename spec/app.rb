@@ -34,7 +34,7 @@ class TestApp < Sinatra::Base
   end
 
   get '/route_block_cache/:type' do |type|
-    result = cache_fragment(:block_tag) do
+    result = cache_block(:block_tag) do
       case type
       when 'hash'; {:uuid => SecureRandom.uuid}
       when 'array'; [:uuid, SecureRandom.uuid]
