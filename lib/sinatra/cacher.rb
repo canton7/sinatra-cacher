@@ -3,7 +3,7 @@ require 'sinatra/base'
 
 module Sinatra
   module Cacher
-    VERSION = '0.1.0'
+    VERSION = '0.9.0'
 
     def self.registered(app)
       app.helpers Helpers
