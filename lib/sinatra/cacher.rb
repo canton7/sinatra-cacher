@@ -28,9 +28,15 @@ module Sinatra
     end
     alias_method :get_cache, :cache_get
 
+    def cache_gen_path(tag)
+       path = File.join(settings.root, settings.cache_path, tag.to_s)
+       path << '.html' if File.extname(path).empty?
+       path
+    end
+
     def cache_get_tag(tag)
       return nil if !tag
-      path = File.join(settings.root, settings.cache_path, tag.to_s) << '.html'
+      path = cache_gen_path(tag)
       return nil unless File.file?(path)
       time, content_type, content = File.open(path, 'rb') do |f|
         [f.gets.chomp.to_i, f.gets.chomp, f.read]
@@ -53,7 +59,7 @@ module Sinatra
         content = Marshal.dump(content)
         content_type = 'marshal'
       end
-      path = File.join(settings.root, settings.cache_path, tag) << '.html'
+      path = cache_gen_path(tag)
       FileUtils.mkdir_p(File.dirname(path))
       time = Time.now.to_i
       # We can get \r\n => \n\n conversion unless we open in binary mode
@@ -161,7 +167,7 @@ module Sinatra
 
       def cache_block(tag)
         raise "No block given to cache_block" unless block_given?
-        tag = "fragments/#{tag}"
+        tag = "blocks/#{tag}"
         content = settings.cache_get_tag(tag)
         return content.first if content
         content = yield
@@ -170,7 +176,7 @@ module Sinatra
       end
 
       def cache_fragment(tag, &blk)
-        raise "You must install sinatra-outputbuffer and register Sinatra::OutputBuffer to use cache_fragment" unless respond_to?(:capture_html)
+        raise "You must install sinatra-outputbuffer, require sinatra/outputbuffer, and register Sinatra::OutputBuffer to use cache_fragment" unless respond_to?(:capture_html)
         raise "No block given to cache_fragment" unless block_given?
         tag = "fragments/#{tag}"
         content, = settings.cache_get_tag(tag)
