@@ -54,6 +54,7 @@ module Sinatra
       return unless cache_enabled?
       tag = tag.to_s
       raise "Cache tag should not end with a slash" if tag.end_with?('/')
+      raise "Cache tag should not be empty" if tag.empty?
       unless content.is_a?(String)
         raise "Can't cache a route which doesn't return a string" if content_type
         content = Marshal.dump(content)
