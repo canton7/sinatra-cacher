@@ -86,7 +86,7 @@ describe "Sinatra-cacher" do
     File.file?(File.join(cache_dir, 'pages/index.html')).should == true
   end
 
-  it "should generate a correcly named cache file for an auto tag" do
+  it "should generate a correctly named cache file for an auto tag" do
     get '/route_auto_tag'
     File.file?(File.join(cache_dir, 'pages/route_auto_tag.html')).should == true
     File.delete(File.join(cache_dir, 'pages/route_auto_tag.html'))
@@ -143,5 +143,37 @@ describe "Sinatra-cacher" do
 
   it "should complain if no block passed to cache_fragment" do
     lambda{ get '/route_invalid_fragment_cache' }.should raise_error
+  end
+
+  it "should not cache, and should regenerate the cache, if cache_overwrite is given" do
+    get '/route_cache_overwrite'
+    response_1 = last_response.body
+    get '/route_cache_overwrite'
+    last_response.body.should_not == response_1
+    File.file?(File.join(cache_dir, 'pages/index.html')).should == true
+  end
+
+  it "should not cache, and should regenerate the cache, if :overwrite => true is given to cache_tag" do
+    get '/route_cache_overwrite_arg'
+    response_1 = last_response.body
+    get '/route_cache_overwrite_arg'
+    last_response.body.should_not == response_1
+    File.file?(File.join(cache_dir, 'pages/index.html')).should == true
+  end
+
+  it "should not cache a block, and should regenerate it, if :overwrite => true is passed" do
+    get '/route_block_overwrite'
+    response_1 = last_response.body
+    get '/route_block_overwrite'
+    last_response.body.should_not == response_1
+    File.file?(File.join(cache_dir, 'blocks/block.html')).should == true
+  end
+
+  it "should not cache a fragment, and should regenerate it, if :overwrite => true is passed" do
+    get '/route_fragment_overwrite'
+    response_1 = last_response.body
+    get '/route_fragment_overwrite'
+    last_response.body.should_not == response_1
+    File.file?(File.join(cache_dir, 'fragments/fragment.html')).should == true
   end
 end

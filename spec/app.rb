@@ -61,4 +61,28 @@ class TestApp < Sinatra::Base
   get '/route_invalid_fragment_cache' do
     erb "<% cache_fragment(:fragment_tag) %>"
   end
+
+  cache_get '/route_cache_overwrite' do
+    cache_overwrite
+    cache_tag :index
+    SecureRandom.uuid
+  end
+
+  cache_get '/route_cache_overwrite_arg' do
+    cache_tag :index, :overwrite => true
+    SecureRandom.uuid
+  end
+
+  get '/route_block_overwrite' do
+    result = cache_block(:block, :overwrite => true){ SecureRandom.uuid }
+    result
+  end
+
+  get '/route_fragment_overwrite' do
+    erb <<-EOF
+      <% cache_fragment(:fragment, :overwrite => true) do %>
+        <%= SecureRandom.uuid %>
+      <% end %>
+    EOF
+  end
 end

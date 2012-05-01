@@ -14,6 +14,7 @@ module Sinatra
       app.set :cache_path, 'tmp/cache'
       # Internal use only
       app.set :cache_last_tag, nil
+      app.set :cache_overwrite, false
     end
 
     def cache_enabled?
@@ -115,6 +116,7 @@ module Sinatra
         context.etag time if settings.cache_generate_etags
       end
       settings.cache_last_tag = nil
+      settings.cache_overwrite = false
       ret
     end
 
@@ -150,12 +152,19 @@ module Sinatra
       # def cache_put_tag(*args); settings.cache_put_tag(*args); end
       def cache_clear(*args); settings.cache_clear(*args); end
 
-      def cache_tag(tag=:auto)
+      def cache_tag(tag=:auto, opts={})
         return unless settings.cache_enabled?
+        cache_overwrite if opts[:overwrite]
         tag = cache_guess_tag(tag)
-        content = settings.cache_get_tag(tag)
-        throw :cache_stop, content.unshift(:cache_hit) if content
+        unless settings.cache_overwrite
+          content = settings.cache_get_tag(File.join('pages', tag))
+          throw :cache_stop, content.unshift(:cache_hit) if content
+        end
         settings.cache_last_tag = tag
+      end
+
+      def cache_overwrite
+        settings.cache_overwrite = true
       end
 
       def cache_guess_tag(tag)
@@ -165,22 +174,26 @@ module Sinatra
         tag
       end
 
-      def cache_block(tag)
+      def cache_block(tag, opts={})
         raise "No block given to cache_block" unless block_given?
         tag = "blocks/#{tag}"
-        content = settings.cache_get_tag(tag)
-        return content.first if content
+        unless opts[:overwrite]
+          content = settings.cache_get_tag(tag)
+          return content.first if content
+        end
         content = yield
         settings.cache_put_tag(tag, content)
         content
       end
 
-      def cache_fragment(tag, &blk)
+      def cache_fragment(tag, opts={}, &blk)
         raise "You must install sinatra-outputbuffer, require sinatra/outputbuffer, and register Sinatra::OutputBuffer to use cache_fragment" unless respond_to?(:capture_html)
         raise "No block given to cache_fragment" unless block_given?
         tag = "fragments/#{tag}"
-        content, = settings.cache_get_tag(tag)
-        return block_is_template?(blk) ? concat_content(content) : content if content
+        unless opts[:overwrite]
+          content, = settings.cache_get_tag(tag)
+          return block_is_template?(blk) ? concat_content(content) : content if content
+        end
         content = capture_html(&blk)
         settings.cache_put_tag(tag, content)
         block_is_template?(blk) ? concat_content(content) : content
