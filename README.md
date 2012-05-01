@@ -134,6 +134,16 @@ This allows you to specify the tag for the route at some point inside the route 
 Everything above the call to `cache_tag` will be executed on every request.
 The tag will then be used to retrieve cached content, and if it exists, the rest of the route won't be executed.
 
+### Cache Overwriting
+
+If you want to nuke the cache and re-write it, without having to call `cache_clear` on it (see below), you can use `cache_overwrite`.
+If this method is called **before** `cache_tag` (this doesn't work with the `:tag => 'tag'` syntax), then the cache wil be overwritten and not used.
+
+You can also pass `:overwrite => true` as an argument to `cache_tag`, e.g.  
+```ruby
+cache_tag 'tag', :overwrite => true
+```
+
 Block Caching
 -------------
 
@@ -151,6 +161,12 @@ As you've probably guessed, the result of `some_expensive_operation` is cached u
 If a cached result is found, `some_expensive_operation` won't be called, and the block will just return the cached value.
 
 If the object returned from the block is non-string, it wil be serialized using `Marshal.dump` in order to be stored, so there are obvious limitations here.
+
+As with `cache_tag`, if you want to force the cache to be overwritten, you can pass `:overwrite => true`, e.g.
+
+```ruby
+@var = cache_block('the_tag', :overwrite => true){ some_expensive_operation }
+```
 
 Fragment Caching
 ----------------
@@ -185,6 +201,12 @@ __END__
 ```
 
 As with block caching, `some_expensive_operation` will only be called if the value returned by the block has not yet been cached.
+
+As with `cache_tag`, if you want to force the cache to be overwritten, you can pass `:overwrite => true`, e.g.
+
+```ruby
+<% cache_fragment('the_tag', :overwrite => true) do %>
+```
 
 A Note On File Paths
 --------------------
@@ -239,6 +261,9 @@ Delete all fragment caches.
 
 `cache_clear 'pages/index'`:
 Deletes the page cache with tag 'index'.
+
+Note that individual caches can be overwritten (without being deleted first) using the `:overwrite` argument.
+See the earlier sections on route, block, and fragment caching.
 
 ETag Generation
 ---------------
