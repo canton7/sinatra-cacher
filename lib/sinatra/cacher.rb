@@ -25,6 +25,7 @@ module Sinatra
       @conditions = conditions
       route('HEAD', path, opts, &blk)
     end
+    alias_method :get_cache, :cache_get
 
     def cache_get_tag(tag)
       return nil if !tag
