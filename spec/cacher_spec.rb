@@ -80,21 +80,21 @@ describe "Sinatra-cacher" do
 
   it "should generate a correctly named cache file for an explicit tag" do
     get '/route_explicit_tag'
-    File.file?(File.join(cache_dir, 'index.html')).should == true
-    File.delete(File.join(cache_dir, 'index.html'))
+    File.file?(File.join(cache_dir, 'pages/index.html')).should == true
+    File.delete(File.join(cache_dir, 'pages/index.html'))
     get '/route_explicit_tag?some_query=yay'
-    File.file?(File.join(cache_dir, 'index.html')).should == true
+    File.file?(File.join(cache_dir, 'pages/index.html')).should == true
   end
 
   it "should generate a correcly named cache file for an auto tag" do
     get '/route_auto_tag'
-    File.file?(File.join(cache_dir, 'route_auto_tag.html')).should == true
-    File.delete(File.join(cache_dir, 'route_auto_tag.html'))
+    File.file?(File.join(cache_dir, 'pages/route_auto_tag.html')).should == true
+    File.delete(File.join(cache_dir, 'pages/route_auto_tag.html'))
     get '/route_auto_tag/'
-    File.file?(File.join(cache_dir, 'route_auto_tag/index.html')).should == true
-    File.delete(File.join(cache_dir, 'route_auto_tag/index.html'))
+    File.file?(File.join(cache_dir, 'pages/route_auto_tag/index.html')).should == true
+    File.delete(File.join(cache_dir, 'pages/route_auto_tag/index.html'))
     get '/route_auto_tag/?param=yay'
-    File.file?(File.join(cache_dir, 'route_auto_tag/index.html')).should == true
+    File.file?(File.join(cache_dir, 'pages/route_auto_tag/index.html')).should == true
   end
 
   it "should correctly cache blocks (type string)" do

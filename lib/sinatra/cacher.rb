@@ -87,6 +87,7 @@ module Sinatra
 
       # If they gave us a tag upfront, (as an arg to cache_get/etc) see whether we can get it
       if tag
+        tag = File.join("pages", tag.to_s)
         cache_content, cache_time, content_type = cache_get_tag(tag)
         if cache_content
           context.etag cache_time if settings.cache_generate_etags
