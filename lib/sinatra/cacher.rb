@@ -121,15 +121,13 @@ module Sinatra
     end
 
     def cache_route(verb, path, opts={}, &blk)
+      tag = opts.delete(:tag)
+
       unless cache_enabled?
         route(verb, path, opts, &blk)
         return
       end
 
-      # If we change tag when calling the route once, it remains change for the next time
-      # the route is called.
-      # Therefore don't change tag
-      tag = opts.delete(:tag)
       method = generate_method :"C#{verb} #{path} #{opts.hash}", &blk
 
       cache_blk = Proc.new { |context, *args|
