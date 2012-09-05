@@ -18,7 +18,9 @@ Firstly, install the gem with
 
 or add it to your `Gemfile` with
 
-    gem 'sinatra-cacher'
+```ruby
+gem 'sinatra-cacher'
+```
 
 Next, with modular applications, you'll want to do this:
 
@@ -130,7 +132,7 @@ end
 Did you see that?
 In case you missed it, the magic is `cache_tag`.
 
-This allows you to specify the tag for the route at some point inside the route (not that you don't want to specify `:tag => 'whatever' as an argument to `get_cache` if you do this).
+This allows you to specify the tag for the route at some point inside the route (not that you don't want to specify `:tag => 'whatever'` as an argument to `get_cache` if you do this).
 Everything above the call to `cache_tag` will be executed on every request.
 The tag will then be used to retrieve cached content, and if it exists, the rest of the route won't be executed.
 
@@ -174,7 +176,7 @@ Fragment Caching
 Block caching doesn't, however, allow you to cache HTML, e.g. from inside a view.
 For this, you need fragment caching.
 
-Note that for fragment caching to work, you'll need to install and require the sinatra-outputbuffer module (Sinatra-cacher doesn't include this by default to keep resource usage low).
+Note that for fragment caching to work, you'll need to install and require the sinatra-outputbuffer module (sinatra-cacher doesn't include this by default to keep resource usage low).
 
 For example:
 
@@ -245,8 +247,8 @@ Use `cache_clear 'tag_name'`.
 
 `tag_name` can either be the name of a tag, or a glob.
 If a glob is given, all cache files which match this glob on the filesystem are destroyed.
-If `tag_name` ends in a trailing slash, an asterisk is automatically appended, so 'tag_name/' becomes 'tag_name/*'.
-If no tag name is given, '*' is used (i.e. delete everything).
+If `tag_name` ends in a trailing slash, an asterisk is automatically appended, so 'tag_name/' becomes 'tag_name/\*'.
+If no tag name is given, '\*' is used (i.e. delete everything).
 
 Examples:
 
